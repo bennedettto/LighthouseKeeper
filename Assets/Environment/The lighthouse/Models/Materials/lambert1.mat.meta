@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 664a127e12e929f48b7a2ddc75ffd566
+timeCreated: 1497484237
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 93139
+  packageName: The Lighthouse PBR
+  packageVersion: 1.0
+  assetPath: Assets/The lighthouse/Models/Materials/lambert1.mat
+  uploadId: 188615

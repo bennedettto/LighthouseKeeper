@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: cb4c734c874fbf147af4290dc9aa1511
+timeCreated: 1495335361
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 93139
+  packageName: The Lighthouse PBR
+  packageVersion: 1.0
+  assetPath: Assets/The lighthouse/Models/Materials/metal01_mat.mat
+  uploadId: 188615

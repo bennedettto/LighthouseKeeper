@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 737c89316f8ef644c8bab39c24e3b6c4
+timeCreated: 1497239881
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 93139
+  packageName: The Lighthouse PBR
+  packageVersion: 1.0
+  assetPath: Assets/The lighthouse/Models/Materials/lighthouse_concretebase_mat_AlbedoTransparency.mat
+  uploadId: 188615

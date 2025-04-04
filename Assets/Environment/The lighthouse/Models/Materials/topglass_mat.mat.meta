@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ee7510ee58f1e69429cffdd3081d3839
+timeCreated: 1495335361
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 93139
+  packageName: The Lighthouse PBR
+  packageVersion: 1.0
+  assetPath: Assets/The lighthouse/Models/Materials/topglass_mat.mat
+  uploadId: 188615
