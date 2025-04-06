@@ -1,16 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace LighthouseKeeper.GameStates
 {
-  public class GameState
+  public static class GameState
   {
-    internal static readonly Dictionary<string, int> state = new Dictionary<string, int>(20);
+    [Serializable]
+    public struct State
+    {
+      [SerializeField] public string key;
+      [SerializeField] public int value;
+    }
 
-    public static event Action<string, int> OnStateChange;
+
+    internal static readonly Dictionary<int, int> state = new Dictionary<int, int>(200);
+
+    public static event Action<int> OnStateChangeHash;
+    public static event Action<int, int> OnStateChangeKeyValue;
 
 
-    public static void Set(string key, int value)
+    public static void Set(int key, int value)
     {
       if (state.TryGetValue(key, out int previousValue))
       {
@@ -23,12 +33,42 @@ namespace LighthouseKeeper.GameStates
         state.Add(key, value);
       }
 
-      OnStateChange?.Invoke(key, value);
+      OnStateChangeHash?.Invoke(1 << (key % 16));
+      OnStateChangeKeyValue?.Invoke(key, value);
     }
+    public static void Set(string key, int value) => Set(key.GetHashCode(), value);
 
-    public static int Get(string key)
+
+    public static int Get(int key) => state.TryGetValue(key, out int value) ? value : 0;
+    public static int Get(string key) => Get(key.GetHashCode());
+
+
+    public static bool TryGet(int key, out int value) => state.TryGetValue(key, out value);
+    public static bool TryGet(string key, out int value) => TryGet(key.GetHashCode(), out value);
+
+
+    public static void SetStates(State[] states)
     {
-      return state.TryGetValue(key, out int value) ? value : 0;
+      int hash = 0;
+      for (int i = 0; i < states.Length; i++)
+      {
+        int key = states[i].key.GetHashCode();
+        if (state.TryGetValue(key, out int previousValue))
+        {
+          if (previousValue == states[i].value) continue;
+
+          state[key] = states[i].value;
+        }
+        else
+        {
+          state.Add(states[i].key.GetHashCode(), states[i].value);
+        }
+
+        OnStateChangeKeyValue?.Invoke(key, states[i].value);
+        hash |= 1 << (key % 16);
+      }
+
+      if (hash != 0) OnStateChangeHash?.Invoke(hash);
     }
   }
 }

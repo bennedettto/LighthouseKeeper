@@ -3,6 +3,8 @@ using UnityEngine.InputSystem;
 
 namespace LighthouseKeeper.GameStates
 {
+    // While enabled, listens for a UI Click.
+    // When done sets GameState
     public class InputListener : MonoBehaviour
     {
         [SerializeField] string key;

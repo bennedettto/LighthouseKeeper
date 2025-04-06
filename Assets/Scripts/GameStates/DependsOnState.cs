@@ -1,22 +1,28 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace LighthouseKeeper.GameStates
 {
+  #if ODIN_INSPECTOR
+  [Sirenix.OdinInspector.HideMonoScript]
+  #endif
   public class DependsOnState : MonoBehaviour
   {
     enum Action
     {
       DestroyWhenMet,
-      DestroyUnlessMet,
+      DestroyWhenNotMet,
       DisableWhenMet,
       EnableWhenMet,
     }
+
 
     enum Check
     {
       Always,
       Once,
     }
+
 
     [SerializeField]
     Action action;
@@ -27,33 +33,34 @@ namespace LighthouseKeeper.GameStates
     [SerializeField]
     GameObject target;
 
-    [SerializeField]
-    Condition[] conditions;
+    [SerializeReference]
+    IConditionNode condition = new Condition();
 
-    bool IsMet()
-    {
-      for (int i = 0; i < conditions.Length; i++)
-      {
-        if (!conditions[i].IsMet) return false;
-      }
-      return true;
-    }
+    int hash;
+
+
+    bool IsMet() => condition.IsMet();
 
 
     void Awake()
     {
-      OnStateChange(conditions[0].key, 0);
+      CalculateHash();
+      OnStateChange(~0);
 
       if (check == Check.Once) return;
-      GameState.OnStateChange += OnStateChange;
+      GameState.OnStateChangeHash += OnStateChange;
     }
+
+
+    void CalculateHash() => hash = condition.GetHash();
+
 
     GameObject Target => target == null ? gameObject : target;
 
 
-    void OnStateChange(string key, int value)
+    void OnStateChange(int hash)
     {
-      if (conditions.Length == 1 && conditions[0].key != key) return;
+      if ((this.hash & hash) == 0) return;
 
       bool isMet = IsMet();
       switch (action)
@@ -62,7 +69,7 @@ namespace LighthouseKeeper.GameStates
           if (isMet) Destroy(Target);
           break;
 
-        case Action.DestroyUnlessMet:
+        case Action.DestroyWhenNotMet:
           if (!isMet) Destroy(Target);
           break;
 
@@ -73,6 +80,9 @@ namespace LighthouseKeeper.GameStates
         case Action.EnableWhenMet:
           Target.SetActive(isMet);
           break;
+
+        default:
+          throw new ArgumentOutOfRangeException();
       }
     }
 
@@ -80,7 +90,7 @@ namespace LighthouseKeeper.GameStates
     void OnDestroy()
     {
       if (check == Check.Once) return;
-      GameState.OnStateChange -= OnStateChange;
+      GameState.OnStateChangeHash -= OnStateChange;
     }
   }
 }

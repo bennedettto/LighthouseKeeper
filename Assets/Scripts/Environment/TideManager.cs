@@ -1,5 +1,4 @@
-﻿using System;
-using LighthouseKeeper.GameStates;
+﻿using LighthouseKeeper.GameStates;
 using UnityEngine;
 
 namespace LighthouseKeeper.Environment
@@ -7,14 +6,19 @@ namespace LighthouseKeeper.Environment
   [ExecuteAlways]
   public class TideManager : MonoBehaviour
   {
+
     [SerializeField] string key = "variables.tide";
     [SerializeField] float lowTide = 0.5f;
     [SerializeField] float highTide = 2.5f;
 
     public float tideHeight = 0f;
 
+    int hashedKey;
+
     void Start()
     {
+      hashedKey = key.GetHashCode();
+
       int tideLevel = GameState.Get(key);
       tideHeight = tideLevel == 0 ? lowTide : highTide;
 
@@ -23,12 +27,12 @@ namespace LighthouseKeeper.Environment
       p.y = tideHeight;
       myTransform.position = p;
 
-      GameState.OnStateChange += OnGameStateChange;
+      GameState.OnStateChangeKeyValue += OnGameStateChange;
     }
 
-    void OnGameStateChange(string key, int value)
+    void OnGameStateChange(int key, int value)
     {
-      if (key != this.key) return;
+      if (key != hashedKey) return;
 
       tideHeight = value == 0 ? lowTide : highTide;
 
@@ -40,7 +44,7 @@ namespace LighthouseKeeper.Environment
 
     void OnDestroy()
     {
-      GameState.OnStateChange -= OnGameStateChange;
+      GameState.OnStateChangeKeyValue -= OnGameStateChange;
     }
   }
 }

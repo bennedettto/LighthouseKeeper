@@ -11,13 +11,12 @@ namespace LighthouseKeeper.GameStates
 
         void Awake()
         {
-            GameState.OnStateChange += OnGameStateChange;
+            GameState.OnStateChangeHash += OnGameStateChange;
             UpdateText();
         }
 
-        void OnGameStateChange(string key, int value)
+        void OnGameStateChange(int hash)
         {
-            Debug.Log($"State Changed: {key}={value}");
             UpdateText();
         }
 
@@ -35,7 +34,7 @@ namespace LighthouseKeeper.GameStates
 
         void OnDestroy()
         {
-            GameState.OnStateChange -= OnGameStateChange;
+            GameState.OnStateChangeHash -= OnGameStateChange;
         }
         #endif
     }
