@@ -1,4 +1,7 @@
 using System;
+using LighthouseKeeper.Player;
+using Sirenix.OdinInspector;
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,6 +11,7 @@ namespace LighthouseKeeper
     public class PlayerController : MonoBehaviour
     {
         public static PlayerController Instance;
+
         static readonly int sittingHash = Animator.StringToHash("Sitting");
         static readonly int moveSpeedHash = Animator.StringToHash("MoveSpeed");
         static readonly int rotationSpeedHash = Animator.StringToHash("RotationSpeed");
@@ -16,14 +20,24 @@ namespace LighthouseKeeper
 
         [Header("Movement Settings")]
         [Range(0, 10), SerializeField] float moveSpeed = 5f;
+
         [Range(0, 360), SerializeField] float rotationSpeed = 10f;
         [Range(0, 10), SerializeField] float jumpHeight = 2f;
         [Range(-20, 0), SerializeField] float gravity = -9.81f;
         [Range(0, 15), SerializeField] float acceleration = 4f;
         [Range(0, 15), SerializeField] float deceleration = 8f;
 
+        [Header("Running")]
+        [Range(0, 20), SerializeField] float sprintSpeed = 9f;
+        [SerializeField] NoiseSettings runCameraNoiseSettings;
+        [SerializeField] NoiseSettings targetNoiseSettings;
+        [Range(0, 10), SerializeField] float staminaDrain = 10f;
+
+
         bool isGrounded;
-        public bool IsGrounded => isGrounded;
+        [ShowInInspector] public bool IsGrounded => isGrounded;
+
+        bool isSprinting = false;
 
 
         [Header("Look Settings")]
@@ -48,6 +62,8 @@ namespace LighthouseKeeper
         Vector3 lookDirection;
         PlayerInput playerInput;
 
+        StaminaSystem staminaSystem;
+
 
 
         void Awake()
@@ -56,6 +72,7 @@ namespace LighthouseKeeper
             Instance = this;
             inputActions = new KeeperInputActions();
             characterController = GetComponent<CharacterController>();
+            staminaSystem = GetComponent<StaminaSystem>();
         }
 
 
@@ -63,9 +80,13 @@ namespace LighthouseKeeper
         {
           inputActions.Player.Enable();
           inputActions.Player.Jump.performed += Jump;
+          inputActions.Player.Sprint.started += StartSprint;
+          inputActions.Player.Sprint.canceled += CancelSprint;
 
           playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
           playerInput.onControlsChanged += OnControlsChanged;
+
+          StaminaSystem.OnStateChange += OnStaminaStateChanged;
         }
 
         void OnControlsChanged(PlayerInput newInput)
@@ -82,9 +103,11 @@ namespace LighthouseKeeper
         void OnDisable()
         {
           inputActions.Player.Jump.performed -= Jump;
+          inputActions.Player.Sprint.started -= StartSprint;
+          inputActions.Player.Sprint.canceled -= CancelSprint;
           inputActions.Player.Disable();
           playerInput.onControlsChanged -= OnControlsChanged;
-
+          StaminaSystem.OnStateChange -= OnStaminaStateChanged;
         }
 
 
@@ -94,6 +117,7 @@ namespace LighthouseKeeper
             HandleLook();
             HandleRotation();
             HandleMovement();
+            HandleCameraShake();
 
             characterController.Move(Time.deltaTime * velocity);
             cameraTransform.localRotation = Quaternion.Euler(lookDirection);
@@ -105,7 +129,7 @@ namespace LighthouseKeeper
 
         void HandleRotation()
         {
-            if (isFrozen)
+            if (IsFrozen)
             {
                 animator.SetFloat(rotationSpeedHash, 0f);
                 return;
@@ -141,9 +165,86 @@ namespace LighthouseKeeper
 
         void Jump(InputAction.CallbackContext obj)
         {
-          if (!isGrounded || isFrozen) return;
+          if (!isGrounded || IsFrozen) return;
 
           velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        }
+
+
+
+        void OnStaminaStateChanged(StaminaSystem.State oldState, StaminaSystem.State newState)
+        {
+            if (newState == StaminaSystem.State.Exhausted)
+            {
+                CancelSprint();
+            }
+        }
+
+
+        float cameraNoiseTargetAmplitude = 0f;
+        void StartSprint(InputAction.CallbackContext obj)
+        {
+            if (!staminaSystem.CanUseStamina) return;
+
+            isSprinting = true;
+            cameraNoiseTargetAmplitude = 1f;
+            staminaSystem.SetStaminaDrain(staminaDrain);
+        }
+
+        float cameraNoiseScale = 0f;
+        void HandleCameraShake()
+        {
+            cameraNoiseScale =
+                Mathf.MoveTowards(cameraNoiseScale, cameraNoiseTargetAmplitude, 5f * Time.deltaTime);
+
+            var source = runCameraNoiseSettings.PositionNoise[0];
+            var target = targetNoiseSettings.PositionNoise[0];
+            if (source.X.Frequency != 0 && source.X.Amplitude != 0)
+            {
+                target.X.Frequency = source.X.Frequency;
+                target.X.Amplitude = source.X.Amplitude * cameraNoiseScale;
+            }
+            if (source.Y.Frequency != 0 && source.Y.Amplitude != 0)
+            {
+                target.Y.Frequency = source.Y.Frequency;
+                target.Y.Amplitude = source.Y.Amplitude * cameraNoiseScale;
+            }
+            if (source.Z.Frequency != 0 && source.Z.Amplitude != 0)
+            {
+                target.Z.Frequency = source.Z.Frequency;
+                target.Z.Amplitude = source.Z.Amplitude * cameraNoiseScale;
+            }
+            targetNoiseSettings.PositionNoise[0] = target;
+
+
+            source = runCameraNoiseSettings.OrientationNoise[0];
+            target = targetNoiseSettings.OrientationNoise[0];
+            if (source.X.Frequency != 0 && source.X.Amplitude != 0)
+            {
+                target.X.Frequency = source.X.Frequency;
+                target.X.Amplitude = source.X.Amplitude * cameraNoiseScale;
+            }
+            if (source.Y.Frequency != 0 && source.Y.Amplitude != 0)
+            {
+                target.Y.Frequency = source.Y.Frequency;
+                target.Y.Amplitude = source.Y.Amplitude * cameraNoiseScale;
+            }
+            if (source.Z.Frequency != 0 && source.Z.Amplitude != 0)
+            {
+                target.Z.Frequency = source.Z.Frequency;
+                target.Z.Amplitude = source.Z.Amplitude * cameraNoiseScale;
+            }
+            targetNoiseSettings.OrientationNoise[0] = target;
+        }
+
+
+        void CancelSprint(InputAction.CallbackContext obj) => CancelSprint();
+
+        void CancelSprint()
+        {
+            isSprinting = false;
+            cameraNoiseTargetAmplitude = 0f;
+            staminaSystem.SetStaminaDrain(0f);
         }
 
 
@@ -154,7 +255,7 @@ namespace LighthouseKeeper
             Vector2 input = inputActions.Player.Move.ReadValue<Vector2>();
             var inputLength = input.magnitude;
 
-            if (isFrozen ||inputLength < 0.01f)
+            if (IsFrozen ||inputLength < 0.01f)
             {
                 velocity = Vector3.MoveTowards(velocity, new Vector3(0, velocity.y, 0), deceleration * Time.deltaTime);
                 return;
@@ -166,16 +267,16 @@ namespace LighthouseKeeper
             Vector3 right = transform.right.WithY(0).normalized;
 
             Vector3 moveDirection = forward * input.y + right * input.x;
+            var targetSpeed = isSprinting ? sprintSpeed : moveSpeed;
             velocity = Vector3.MoveTowards(velocity,
-                                           new Vector3(moveSpeed * moveDirection.x, velocity.y, moveSpeed * moveDirection.z),
+                                           new Vector3(targetSpeed * moveDirection.x, velocity.y, targetSpeed * moveDirection.z),
                                            acceleration * Time.deltaTime);
         }
 
 
-
         void HandleLook()
         {
-            if (isVisionLocked) return;
+            if (IsVisionLocked) return;
             Vector2 input = inputActions.Player.Look.ReadValue<Vector2>();
 
             float multiplier = inputDevice switch
@@ -189,16 +290,26 @@ namespace LighthouseKeeper
             lookDirection.x = Mathf.Clamp(lookDirection.x, -lookUpAngle, lookDownAngle);
         }
 
+
         bool isFrozen = false;
+        [ShowInInspector] bool IsFrozen =>
+#if UNITY_EDITOR
+            !Application.isPlaying ? false :
+#endif
+                isFrozen || staminaSystem.state == StaminaSystem.State.Exhausted;
         public void Freeze() => isFrozen = true;
         public void Unfreeze() => isFrozen = false;
 
         bool isVisionLocked = false;
+        [ShowInInspector] public bool IsVisionLocked =>
+#if UNITY_EDITOR
+            !Application.isPlaying ? false :
+#endif
+                isVisionLocked || staminaSystem.state == StaminaSystem.State.Exhausted;
         public void LockVision() => isVisionLocked = true;
         public void UnlockVision() => isVisionLocked = false;
 
         public void Sit() => animator.SetBool(sittingHash, true);
         public void Stand() => animator.SetBool(sittingHash, false);
-
     }
 }

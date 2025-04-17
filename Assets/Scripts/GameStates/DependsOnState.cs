@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace LighthouseKeeper.GameStates
 {
@@ -31,7 +32,7 @@ namespace LighthouseKeeper.GameStates
     Check check;
 
     [SerializeField]
-    GameObject target;
+    Object target;
 
     [SerializeReference]
     IConditionNode condition = new Condition();
@@ -55,7 +56,7 @@ namespace LighthouseKeeper.GameStates
     void CalculateHash() => hash = condition.GetHash();
 
 
-    GameObject Target => target == null ? gameObject : target;
+    Object Target => target == null ? (Object)gameObject  : target;
 
 
     void OnStateChange(int hash)
@@ -63,22 +64,49 @@ namespace LighthouseKeeper.GameStates
       if ((this.hash & hash) == 0) return;
 
       bool isMet = IsMet();
+      Object _target = Target;
       switch (action)
       {
         case Action.DestroyWhenMet:
-          if (isMet) Destroy(Target);
+          if (isMet) Destroy(_target);
           break;
 
         case Action.DestroyWhenNotMet:
-          if (!isMet) Destroy(Target);
+          if (!isMet) Destroy(_target);
           break;
 
         case Action.DisableWhenMet:
-          Target.SetActive(!isMet);
+          switch (_target)
+          {
+            case GameObject goTarget:
+              goTarget.SetActive(!isMet);
+              break;
+
+            case Behaviour behaviourTarget:
+              behaviourTarget.enabled = !isMet;
+              break;
+
+            default:
+              Debug.LogWarning($"Cannot disable target of type {_target.GetType()}");
+              break;
+          }
           break;
 
         case Action.EnableWhenMet:
-          Target.SetActive(isMet);
+          switch (_target)
+          {
+            case GameObject goTarget:
+              goTarget.SetActive(isMet);
+              break;
+
+            case Behaviour behaviourTarget:
+              behaviourTarget.enabled = isMet;
+              break;
+
+            default:
+              Debug.LogWarning($"Cannot enable target of type {_target.GetType()}");
+              break;
+          }
           break;
 
         default:

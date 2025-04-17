@@ -5,10 +5,9 @@ namespace LighthouseKeeper.GameStates
 {
     // While enabled, listens for a UI Click.
     // When done sets GameState
-    public class InputListener : MonoBehaviour
+    public class SetGameStateWhenUIClickAction : MonoBehaviour
     {
-        [SerializeField] string key;
-        [SerializeField] int value;
+        [SerializeField] GameState.State[] states;
 
         KeeperInputActions inputActions;
 
@@ -23,7 +22,7 @@ namespace LighthouseKeeper.GameStates
             inputActions.UI.Click.performed += Click;
         }
 
-        void Click(InputAction.CallbackContext obj) => GameState.Set(key, value);
+        void Click(InputAction.CallbackContext obj) => GameState.SetStates(states);
 
         void OnDisable()
         {

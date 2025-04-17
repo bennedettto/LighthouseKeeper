@@ -13,6 +13,7 @@ namespace LighthouseKeeper.Environment
 
         public int gridSize = 20;
         public int halfExtent = 200;
+        public float interiorRadius = 25f;
 
         Mesh mesh;
         MeshFilter meshFilter;
@@ -91,7 +92,7 @@ namespace LighthouseKeeper.Environment
             for (int z = -halfExtent; z < halfExtent; z += gridSize)
                 for (int x = -halfExtent; x < halfExtent; x += gridSize)
                 {
-                    if (math.sqrt(x * x + z * z) < 100) continue; // interior of island
+                    if (math.sqrt(x * x + z * z) < interiorRadius) continue; // interior of island
                     AddGrid(vertices, triangles, uvs, normals, x, z, Get(x, z), ref vertexIndex);
                 }
 

@@ -1,33 +1,17 @@
-﻿using Sirenix.Utilities;
-using UnityEngine;
-
-namespace LighthouseKeeper.GameStates
+﻿namespace LighthouseKeeper.GameStates
 {
-    public class InvokeWhenGameState : MonoBehaviour
+    public class InvokeWhenGameState : InvokerBehaviour
     {
-        [SerializeField]
-        InvokableBehaviour[] invokables;
-
-        [SerializeReference]
-        IConditionNode condition = new Condition();
-
         bool wasMet;
         int hash;
-
-        InvokableBehaviour[] Invokables => invokables == null || invokables.Length == 0
-                                               ? GetComponents<InvokableBehaviour>()
-                                               : invokables;
-
-
-        bool IsMet() => condition.IsMet();
 
 
         void Awake()
         {
-            hash = condition.GetHash();
+            hash = GetHash();
             wasMet = IsMet();
 
-            if (wasMet) Invokables.ForEach(invokable => invokable.Invoke());
+            if (wasMet) TryInvoke();
 
             GameState.OnStateChangeHash += OnStateChange;
         }
@@ -39,7 +23,7 @@ namespace LighthouseKeeper.GameStates
             if (wasMet == IsMet()) return;
 
             wasMet = !wasMet;
-            if (wasMet) Invokables.ForEach(invokable => invokable.Invoke());
+            if (wasMet) TryInvoke();
         }
 
 

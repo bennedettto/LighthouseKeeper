@@ -20,6 +20,10 @@ namespace LighthouseKeeper.GameStates
     public static event Action<int, int> OnStateChangeKeyValue;
 
 
+    public static int GetHash(string key) => key.GetHashCode();
+
+
+
     public static void Set(int key, int value)
     {
       if (state.TryGetValue(key, out int previousValue))

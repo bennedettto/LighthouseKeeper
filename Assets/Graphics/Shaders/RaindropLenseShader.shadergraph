@@ -1734,8 +1734,8 @@
     "m_ObjectId": "18d6bbdd4f8f4a428a7ca7e0e59db592",
     "m_Title": "Rain Drops",
     "m_Position": {
-        "x": -2557.999755859375,
-        "y": 396.0001220703125
+        "x": -2558.0,
+        "y": 396.0
     }
 }
 
@@ -3587,8 +3587,8 @@
     "m_ObjectId": "54c826261eab4341b5a0857ea66d1490",
     "m_Title": "Screen UVs",
     "m_Position": {
-        "x": -3684.999755859375,
-        "y": -107.99988555908203
+        "x": -3685.0,
+        "y": -108.0
     }
 }
 
@@ -4239,7 +4239,7 @@
     "m_Type": "UnityEditor.ShaderGraph.Texture2DMaterialSlot",
     "m_ObjectId": "717bd1ecd0a0467aa14e57d708c49026",
     "m_Id": 0,
-    "m_DisplayName": "RainDrops",
+    "m_DisplayName": "RainDropTexture",
     "m_SlotType": 1,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
