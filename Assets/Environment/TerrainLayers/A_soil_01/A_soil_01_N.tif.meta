@@ -126,5 +126,5 @@ AssetOrigin:
   productId: 207568
   packageName: Atlas - terrain editor
   packageVersion: 1.0.4
-  assetPath: Assets/Atlas Terrain Editor/TerrainLayers/A_soil_01/A_soil_01_N.tif
+  assetPath: Assets/Environment/TerrainLayers/A_soil_01/A_soil_01_N.tif
   uploadId: 596268

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0f3f71537a3821d4cba0c1642398c459
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 122112
+  packageName: Diesel Generator Old
+  packageVersion: 1.1
+  assetPath: Assets/Abandoned World/Disel Generator Old/Prefabs/disel_generator_element.prefab
+  uploadId: 726969

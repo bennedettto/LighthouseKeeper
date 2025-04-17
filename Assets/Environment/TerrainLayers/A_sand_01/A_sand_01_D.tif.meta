@@ -95,5 +95,5 @@ AssetOrigin:
   productId: 207568
   packageName: Atlas - terrain editor
   packageVersion: 1.0.4
-  assetPath: Assets/Atlas Terrain Editor/TerrainLayers/A_sand_01/A_sand_01_D.tif
+  assetPath: Assets/Environment/TerrainLayers/A_sand_01/A_sand_01_D.tif
   uploadId: 596268
