@@ -103,6 +103,10 @@ namespace LighthouseKeeper.GameStates
               behaviourTarget.enabled = isMet;
               break;
 
+            case Renderer renderer:
+              renderer.enabled = isMet;
+              break;
+
             default:
               Debug.LogWarning($"Cannot enable target of type {_target.GetType()}");
               break;

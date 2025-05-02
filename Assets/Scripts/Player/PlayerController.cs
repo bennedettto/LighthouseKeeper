@@ -1,3 +1,5 @@
+#define LOCKED_VIEW
+
 using System;
 using LighthouseKeeper.Player;
 using Sirenix.OdinInspector;
@@ -142,8 +144,13 @@ namespace LighthouseKeeper
                 return;
             }
 
+            #if LOCKED_VIEW
+            transform.Rotate(0, angle, 0, Space.World);
+            lookDirection.y = 0f;
+            #else
             transform.localRotation *= Quaternion.Euler(0, Time.deltaTime * rotationSpeed * Mathf.Sign(angle), 0);
             lookDirection.y = Mathf.Sign(angle) * (Mathf.Abs(angle) - Time.deltaTime * rotationSpeed);
+            #endif
             animator.SetFloat(rotationSpeedHash, rotationSpeed * angle);
         }
 
@@ -286,7 +293,7 @@ namespace LighthouseKeeper
                 _ => throw new ArgumentOutOfRangeException(),
             };
 
-            lookDirection += Time.deltaTime * multiplier * new Vector3(-input.y, input.x, 0) ;
+            lookDirection += Time.deltaTime * multiplier * new Vector3(-input.y, input.x, 0);
             lookDirection.x = Mathf.Clamp(lookDirection.x, -lookUpAngle, lookDownAngle);
         }
 

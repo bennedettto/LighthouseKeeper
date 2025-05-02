@@ -38,7 +38,7 @@ namespace LighthouseKeeper.Environment
 
         void SetRotation(float fuel)
         {
-            transform.rotation = Quaternion.Euler(0, 0, Mathf.Lerp(emptyRotation, fullRotation, fuel));
+            transform.localRotation = Quaternion.Euler(0, 0, Mathf.Lerp(emptyRotation, fullRotation, fuel));
         }
     }
 }
