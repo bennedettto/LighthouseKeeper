@@ -19,3 +19,231 @@
 | time.isDaytime      | 0, 1      | Whether it is daytime                                 |
 | time.dayNumber      | 0, 1, 2   | Current day number (0=Day 1, 1=Day 2, 2=Day 3)        |
 
+## Usage
+
+Canvas_WithPergament
+  DependsOnState
+    Action: DestroyWhenMet
+    Check: Once
+    Target: None
+    Conditions:
+      - Key: letter.wasRead
+        Equal
+        Value: 1
+
+Canvas_WithPergament
+  FadeIn:
+    DependsOnState:
+      Action: EnableWhenMet
+      Check: Always
+      Target: None
+      Conditions:
+        - Key: letter.wasRead
+          Equal
+          Value: 1
+  Pergament:
+    InputListener:
+      Key: letter.wasRead
+      Value: 1
+
+Canvas_NoPergament
+  DependsOnState
+    Action: DestroyWhenMet
+    Check: Once
+    Target: None
+    Conditions:
+      - Key: letter.wasRead
+        Equal
+        Value: 0
+
+BOAT_ARRIVAL
+  DependsOnState
+    Action: EnableWhenMet
+    Check: Always
+    Target: None
+    Conditions:
+      - Key: letter.wasRead
+        Equal
+        Value: 1
+
+  Timeline
+    DependsOnState
+      Action: DisableWhenMet
+      Check: Always
+      Target: PLAYER
+      Conditions:
+        - Key: boat.hasArrived
+          Equal
+          Value: 0
+    SetGameStateInvokable
+      Key: boat.hasArrived
+      Value: 1
+    SetGameStateInvokable
+      Key: boat.hasLeft
+      Value: 1
+    SetGameStateInvokable
+      Key: boat.wasRemoved
+      Value: 1
+  OverridePlayerPosition
+    DependsOnState
+      Action: EnableWhenMet
+      Check: Always
+      Target:
+      Conditions:
+        - Key: boat.hasArrived
+          Equal
+          Value: 1
+
+BOAT
+  Character1
+    InvokeWhenGameState
+      Invokable: [link]
+      Conditions
+        - Key: boat.hasArrived
+          Equal
+          Value: 1
+    SetAnimatorStateInvokable
+      Animator: [link]
+      Key: Rest1
+      ParamterType: Trigger
+    InvokeWhenGameState
+      Invokable: [link]
+      Conditions
+        - Key: boat.hasLeft
+          Equal
+          Value: 1
+    SetAnimatorStateInvokable
+      Animator: [link]
+      Key: Paddle
+      ParamterType: Trigger
+  CinemachineCamera
+    DependsOnState
+      Action: DisableWhenMet
+      Check: Always
+      Target: None
+      Conditions:
+        - Key: boat.hasArrived
+          Equal
+          Value: 1
+
+Postion
+  X0,97  0,04
+  Y1,28  0,13
+  Z0     0
+Rottion
+  X
+  Y
+  Z
+
+Canas_WithPergament
+  DpendsOnState
+   Action: DestroyWhenMet
+   Check: Once
+   Target: None
+   Conditions:
+     - Key: letter.wasRead
+       Equal
+       Value: 1
+
+Canas_WithPergament
+  FdeIn:
+   DependsOnState:
+     Action: EnableWhenMet
+     Check: Always
+     Target: None
+     Conditions:
+       - Key: letter.wasRead
+         Equal
+         Value: 1
+  Prgament:
+   InputListener:
+     Key: letter.wasRead
+     Value: 1
+
+Canas_NoPergament
+  DpendsOnState
+   Action: DestroyWhenMet
+   Check: Once
+   Target: None
+   Conditions:
+     - Key: letter.wasRead
+       Equal
+       Value: 0
+
+BOA_ARRIVAL
+  DpendsOnState
+   Action: EnableWhenMet
+   Check: Always
+   Target: None
+   Conditions:
+     - Key: letter.wasRead
+       Equal
+       Value: 1
+
+  Tmeline
+   DependsOnState
+     Action: DisableWhenMet
+     Check: Always
+     Target: PLAYER
+     Conditions:
+       - Key: boat.hasArrived
+         Equal
+         Value: 0
+   SetGameStateInvokable
+     Key: boat.hasArrived
+     Value: 1
+   SetGameStateInvokable
+     Key: boat.hasLeft
+     Value: 1
+   SetGameStateInvokable
+     Key: boat.wasRemoved
+     Value: 1
+  OerridePlayerPosition
+   DependsOnState
+     Action: EnableWhenMet
+     Check: Always
+     Target:
+     Conditions:
+       - Key: boat.hasArrived
+         Equal
+         Value: 1
+
+BOA
+  Caracter1
+   InvokeWhenGameState
+     Invokable: [link]
+     Conditions
+       - Key: boat.hasArrived
+         Equal
+         Value: 1
+   SetAnimatorStateInvokable
+     Animator: [link]
+     Key: Rest1
+     ParamterType: Trigger
+   InvokeWhenGameState
+     Invokable: [link]
+     Conditions
+       - Key: boat.hasLeft
+         Equal
+         Value: 1
+   SetAnimatorStateInvokable
+     Animator: [link]
+     Key: Paddle
+     ParamterType: Trigger
+  CnemachineCamera
+   DependsOnState
+     Action: DisableWhenMet
+     Check: Always
+     Target: None
+     Conditions:
+       - Key: boat.hasArrived
+         Equal
+         Value: 1
+
+
+
+
+
+
+
+
