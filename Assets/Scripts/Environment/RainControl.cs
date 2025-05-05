@@ -6,8 +6,10 @@ namespace LighthouseKeeper.Environment
 {
     public class RainControl : MonoBehaviour
     {
-        static readonly int rainIsRainingHash = GameState.GetHash("rain.IsRaining");
+        static readonly int rainIsRainingHash = GameState.GetHash("rain.isRaining");
         static readonly int rainAmountHash = GameState.GetHash("rain.amount");
+
+        static readonly int spawnRateHash = Shader.PropertyToID("SpawnRate");
 
         [SerializeField] VisualEffect rainVFX;
 
@@ -38,8 +40,7 @@ namespace LighthouseKeeper.Environment
             }
 
             float amount = 0.01f * GameState.Get(rainAmountHash);
-            rainVFX.SetFloat("SpawnRate", Mathf.Lerp(lightRainFrequency, heavyRainFrequency, amount));
-            rainVFX.SetFloat("Wind", Mathf.Lerp(0.1f, 1f, amount));
+            rainVFX.SetFloat(spawnRateHash, Mathf.Lerp(lightRainFrequency, heavyRainFrequency, amount));
             rainVFX.enabled = true;
             rainVFX.Play();
         }

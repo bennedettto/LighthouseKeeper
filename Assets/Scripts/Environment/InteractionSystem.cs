@@ -17,6 +17,7 @@ namespace LighthouseKeeper.Environment
 
         [SerializeField] GameObject interactPrompt;
 
+
         void Awake()
         {
             inputActions = new KeeperInputActions();

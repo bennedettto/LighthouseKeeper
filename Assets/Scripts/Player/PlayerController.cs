@@ -268,6 +268,9 @@ namespace LighthouseKeeper
                 return;
             }
 
+            // get ground normal
+            Vector3 groundNormal = characterController.isGrounded ? characterController.transform.up : Vector3.up;
+
             if (inputLength > 1f) input /= inputLength;
 
             Vector3 forward = transform.forward.WithY(0).normalized;
