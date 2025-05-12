@@ -51,14 +51,19 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _Angle_Radians: 28.8
     - _End: 0.5
-    - _MaxAlpha: 0.318
+    - _Length: 100
+    - _MaxAlpha: 0.166
     - _NoiseScale: 0.86
     - _NoiseStrength: 0.559
     - _QueueControl: 0
     - _QueueOffset: 0
+    - _Radius: 6.5
+    - _Radius_End: 6.5
+    - _Radius_Start: 0.75
     - _Start: 0.024
     m_Colors:
-    - _Color: {r: 1.6792452, g: 1.3868837, b: 0.13465647, a: 0}
+    - _Color: {r: 0.6320754, g: 0.5909694, b: 0.3488341, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
