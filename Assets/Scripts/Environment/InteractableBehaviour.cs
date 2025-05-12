@@ -1,3 +1,4 @@
+using HighlightPlus;
 using LighthouseKeeper.GameStates;
 using UnityEngine;
 
@@ -9,7 +10,10 @@ namespace LighthouseKeeper.Environment
 
     [SerializeField] public string gameState = "interactable.state";
 
-    public abstract int Interact();
+    [SerializeField] public HighlightEffect highlightTarget;
+    public abstract bool Interact(out int state);
+    public virtual bool StartInteract(out int state) { state = 0; return false; }
+    public virtual bool StopInteract(out int state) { state = 0; return false; }
     protected abstract void Initialize(int state);
 
 

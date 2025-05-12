@@ -32,7 +32,7 @@ namespace LighthouseKeeper.Environment
       };
 
 
-      public override int Interact()
+      public override bool Interact(out int newState)
       {
           state = state switch
           {
@@ -42,7 +42,8 @@ namespace LighthouseKeeper.Environment
 
           StartCoroutine(MoveCoroutine());
           AudioSystem.Instance.Play(state == State.Open ? openSound : closeSound, AudioSystem.Type.SFX);
-          return (int)state;
+          newState = (int)state;
+          return true;
       }
 
       protected override void Initialize(int state)

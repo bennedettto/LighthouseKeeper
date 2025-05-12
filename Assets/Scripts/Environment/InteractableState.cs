@@ -1,3 +1,4 @@
+using System;
 using LighthouseKeeper.GameStates;
 using UnityEngine;
 
@@ -9,26 +10,26 @@ namespace LighthouseKeeper.Environment
       [SerializeField] Condition turnOffCondition;
 
       int state;
-      public override int Interact()
+      public override bool Interact(out int newState)
       {
-          if (state == 0) TryTurnOn();
-          else TryTurnOff();
+          newState = state;
+          switch (state)
+          {
+              case 0:
+                  if (!turnOnCondition.IsMet()) return false;
 
-          return state;
-      }
+                  state = newState = 1;
+                  return true;
 
-      void TryTurnOff()
-      {
-          if (!turnOffCondition.IsMet()) return;
+              case 1:
+                  if (!turnOffCondition.IsMet()) return false;
 
-          state = 0;
-      }
+                  state = newState = 0;
+                  return true;
 
-      void TryTurnOn()
-      {
-          if (!turnOnCondition.IsMet()) return;
-
-          state = 1;
+                default:
+                    throw new ArgumentOutOfRangeException();
+          }
       }
 
       protected override void Initialize(int state)

@@ -2,7 +2,7 @@
 using Unity.Cinemachine;
 using UnityEngine;
 
-namespace Player
+namespace LighthouseKeeper.Player
 {
     public class ExhaustionCameraShake : MonoBehaviour
     {

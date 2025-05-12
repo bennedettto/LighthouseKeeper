@@ -1,10 +1,19 @@
 ﻿using System;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace LighthouseKeeper.Player
 {
     public class StaminaSystem : MonoBehaviour
     {
+        public enum RecoveryState
+        {
+            Full,
+            Using,
+            Depleted,
+            Recovering,
+        }
+
         public enum State
         {
             Fresh,
@@ -12,30 +21,37 @@ namespace LighthouseKeeper.Player
             Exhausted,
         }
 
-        public State state;
-
         public static StaminaSystem Instance;
         public static event Action<State, State> OnStateChange;
+
+
+        [ShowInInspector]
+        RecoveryState recoveryState;
+
+        [NonSerialized, ShowInInspector]
+        public State state;
 
         [SerializeField, Min(0)]
         float maxStamina = 150;
 
         [SerializeField, Min(0)]
-        float tiredStamina = 50;
+        float tiredStamina = 40;
 
+        [ShowInInspector]
         float stamina;
 
-        [SerializeField]
-        float staminaRecoveryRate = 10f;
+        [SerializeField, Min(0)]
+        float staminaRecoveryRate = 30f;
 
-        float staminaDrainRate;
+        [SerializeField, Min(0)]
+        float recoveryCooldown = 2f;
 
-        [SerializeField]
+        [SerializeField, Min(0)]
         float exhaustionDuration = 2f;
 
-        float exhaustionTimer;
+        float lastStateChangeTime;
 
-        public bool CanUseStamina => state is State.Fresh or State.Tired;
+        public bool CanUseStamina => recoveryState != RecoveryState.Depleted;
 
 
         public float TiredAmount => Mathf.Clamp01(Mathf.InverseLerp(tiredStamina, 0, stamina));
@@ -45,91 +61,111 @@ namespace LighthouseKeeper.Player
         void Awake()
         {
             Instance = this;
+
+            stamina = maxStamina;
+            recoveryState = RecoveryState.Full;
         }
 
-        public void SetStaminaDrain(float x)
+
+        public void UseStamina(float x)
         {
             Debug.Assert(x >= 0);
-            staminaDrainRate = x;
+
+            if (x == 0) return;
+
+            if (stamina - x <= 0)
+            {
+                stamina = 0;
+                SetState(RecoveryState.Depleted);
+                return;
+            }
+
+            stamina -= x;
+            SetState(RecoveryState.Using);
         }
 
 
-
-        void Start()
+        void SetState(RecoveryState newState)
         {
-            stamina = maxStamina;
-            state = State.Fresh;
+            if (recoveryState == newState) return;
+
+            recoveryState = newState;
+            lastStateChangeTime = Time.time;
         }
 
         void SetState(State newState)
         {
-            if (newState == state) return;
+            if (state == newState) return;
 
-            switch (state, newState)
-            {
-                case (State.Fresh, State.Tired):
-                case (State.Exhausted, State.Tired):
-                case (State.Tired, State.Fresh):
-                    break;
-
-                case (State.Tired, State.Exhausted):
-                    exhaustionTimer = Time.time + exhaustionDuration;
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(newState), newState, null);
-            }
-
-            OnStateChange?.Invoke(state, newState);
+            var oldState = state;
             state = newState;
+            OnStateChange?.Invoke(oldState, newState);
+            Debug.Log("StaminaSystem state changed: " + newState, this);
         }
 
         void Update()
         {
-            switch (state)
-            {
-                case State.Fresh:
-                    if (staminaDrainRate > 0f)
-                    {
-                        stamina -= Time.deltaTime * staminaDrainRate;
-                        if (stamina <= tiredStamina) SetState(State.Tired);
-                    }
-                    else
-                    {
-                        stamina += Time.deltaTime * staminaRecoveryRate;
-                        if (stamina > maxStamina) stamina = maxStamina;
-                    }
-                    break;
+           switch (recoveryState)
+           {
+               case RecoveryState.Full:
+                   break;
 
-                case State.Tired:
-                    if (staminaDrainRate > 0f)
-                    {
-                        stamina -= Time.deltaTime * staminaDrainRate;
-                        if (stamina <= 0)
-                        {
-                            stamina = 0f;
-                            SetState(State.Exhausted);
-                        }
-                    }
-                    else
-                    {
-                        stamina += Time.deltaTime * staminaRecoveryRate;
-                        if (stamina > tiredStamina) SetState(State.Fresh);
-                    }
-                    break;
+               case RecoveryState.Using:
+                   if (Time.time > lastStateChangeTime + recoveryCooldown)
+                   {
+                       SetState(RecoveryState.Recovering);
+                   }
+                   break;
 
-                case State.Exhausted:
-                    exhaustionTimer -= Time.deltaTime;
-                    if (exhaustionTimer <= 0f)
-                    {
-                        SetState(State.Tired);
-                        stamina = 0.01f;
-                    }
-                    break;
+               case RecoveryState.Depleted:
+                   if (Time.time > lastStateChangeTime + exhaustionDuration)
+                   {
+                       stamina = 1f;
+                       SetState(RecoveryState.Using);
+                   }
+                   break;
 
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+               case RecoveryState.Recovering:
+                   stamina += Time.deltaTime * staminaRecoveryRate;
+                     if (stamina >= maxStamina)
+                     {
+                          stamina = maxStamina;
+                          SetState(RecoveryState.Full);
+                     }
+                   break;
+
+               default:
+                   throw new ArgumentOutOfRangeException();
+           }
+
+           switch (state)
+           {
+               case State.Fresh when stamina < tiredStamina:
+                   SetState(State.Tired);
+                   break;
+
+
+               case State.Tired when stamina > tiredStamina:
+                   SetState(State.Fresh);
+                   break;
+
+               case State.Tired when stamina <= 0:
+                   SetState(State.Exhausted);
+                   break;
+
+
+               case State.Exhausted when stamina > 0:
+                   SetState(State.Tired);
+                   break;
+
+               case State.Fresh:
+               case State.Tired:
+               case State.Exhausted:
+                   break;
+
+               default:
+                   throw new ArgumentOutOfRangeException();
+           }
         }
     }
 }

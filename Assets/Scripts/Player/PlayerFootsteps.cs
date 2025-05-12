@@ -2,7 +2,7 @@
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace LighthouseKeeper
+namespace LighthouseKeeper.Player
 {
   [RequireComponent(typeof(CharacterController))]
   public class PlayerFootsteps : MonoBehaviour

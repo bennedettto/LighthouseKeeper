@@ -3,7 +3,7 @@ using LighthouseKeeper.Player;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace Player
+namespace LighthouseKeeper.Player
 {
     public class PlayBreathingSounds : MonoBehaviour
     {

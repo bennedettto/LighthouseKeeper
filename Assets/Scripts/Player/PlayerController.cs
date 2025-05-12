@@ -1,15 +1,17 @@
 #define LOCKED_VIEW
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using LighthouseKeeper.Player;
 using Sirenix.OdinInspector;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace LighthouseKeeper
+namespace LighthouseKeeper.Player
 {
     [RequireComponent(typeof(CharacterController), typeof(PlayerInput))]
+    [SuppressMessage("ReSharper", "SimplifyConditionalTernaryExpression")]
     public class PlayerController : MonoBehaviour
     {
         public static PlayerController Instance;
@@ -45,21 +47,23 @@ namespace LighthouseKeeper
         [Header("Look Settings")]
         public Transform cameraTransform;
 
-        [Range(0, 100), SerializeField] float mouseLookSensitivity = 2f;
-        [Range(0, 100), SerializeField] float gamePadLookSensitivity = 2f;
+        [Range(0, 100), SerializeField]
+        public float mouseLookSensitivity = 2f;
+        [Range(0, 100), SerializeField]
+        public float gamePadLookSensitivity = 2f;
         [Range(0, 90), SerializeField] float lookDownAngle = -30f;
         [Range(0, 90), SerializeField] float lookUpAngle = 60f;
 
-        enum InputDevice
+        public enum InputDevice
         {
             KeyboardMouse,
             GamePad,
         }
-        InputDevice inputDevice = InputDevice.KeyboardMouse;
+        public InputDevice inputDevice = InputDevice.KeyboardMouse;
 
 
         KeeperInputActions inputActions;
-        CharacterController characterController;
+        public CharacterController characterController;
         Vector3 velocity;
         Vector3 lookDirection;
         PlayerInput playerInput;
@@ -118,6 +122,7 @@ namespace LighthouseKeeper
             HandleGravity();
             HandleLook();
             HandleRotation();
+            HandleSprint();
             HandleMovement();
             HandleCameraShake();
 
@@ -126,6 +131,14 @@ namespace LighthouseKeeper
             Vector3 forward = transform.forward.WithY(0).normalized;
 
             animator.SetFloat(moveSpeedHash, Vector3.Dot(velocity.WithY(0), forward));
+        }
+
+
+        void HandleSprint()
+        {
+            if (!isSprinting) return;
+
+            staminaSystem.UseStamina(Time.deltaTime * staminaDrain);
         }
 
 
@@ -195,7 +208,6 @@ namespace LighthouseKeeper
 
             isSprinting = true;
             cameraNoiseTargetAmplitude = 1f;
-            staminaSystem.SetStaminaDrain(staminaDrain);
         }
 
         float cameraNoiseScale = 0f;
@@ -251,7 +263,6 @@ namespace LighthouseKeeper
         {
             isSprinting = false;
             cameraNoiseTargetAmplitude = 0f;
-            staminaSystem.SetStaminaDrain(0f);
         }
 
 
@@ -302,20 +313,24 @@ namespace LighthouseKeeper
 
 
         bool isFrozen = false;
-        [ShowInInspector] bool IsFrozen =>
+
+        [ShowInInspector]
+        bool IsFrozen =>
 #if UNITY_EDITOR
             !Application.isPlaying ? false :
 #endif
-                isFrozen || staminaSystem.state == StaminaSystem.State.Exhausted;
+                (isFrozen || staminaSystem.state == StaminaSystem.State.Exhausted);
         public void Freeze() => isFrozen = true;
         public void Unfreeze() => isFrozen = false;
 
+
         bool isVisionLocked = false;
+
         [ShowInInspector] public bool IsVisionLocked =>
 #if UNITY_EDITOR
             !Application.isPlaying ? false :
 #endif
-                isVisionLocked || staminaSystem.state == StaminaSystem.State.Exhausted;
+                (isVisionLocked || staminaSystem.state == StaminaSystem.State.Exhausted);
         public void LockVision() => isVisionLocked = true;
         public void UnlockVision() => isVisionLocked = false;
 

@@ -17,8 +17,25 @@ namespace LighthouseKeeper.GameStates
                                                ? GetComponents<InvokableBehaviour>()
                                                : invokables;
 
-        protected bool IsMet() => condition.IsMet();
-        protected int GetHash() => condition.GetHash();
+        protected bool IsMet()
+        {
+            if (condition == null)
+            {
+                Debug.LogError("Condition is null", this);
+                return false;
+            }
+            return condition.IsMet();
+        }
+
+        protected int GetHash()
+        {
+            if (condition == null)
+            {
+                Debug.LogError("Condition is null", this);
+                return 0;
+            }
+            return condition.GetHash();
+        }
 
         protected bool TryInvoke()
         {
